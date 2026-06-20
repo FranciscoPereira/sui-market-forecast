@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: dark; }
+  body  { @apply bg-surface text-white font-sans antialiased; }
+
+  * { box-sizing: border-box; }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+}
+
+@layer components {
+  .input-base {
+    @apply w-full bg-surface border border-border rounded-lg px-3 py-2.5
+           text-white text-sm placeholder:text-gray-600
+           focus:outline-none focus:border-brand-500 transition-colors;
+  }
+}

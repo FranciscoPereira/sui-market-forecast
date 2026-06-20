@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.local
+*.local
+build/
+
+# SUI
+contracts/build/
+
+# OS
+.DS_Store
+Thumbs.db
