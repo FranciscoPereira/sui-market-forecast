@@ -60,6 +60,68 @@
 
 ---
 
+## How SUI Blockchain Is Used
+
+Every core action in this protocol happens on-chain on the SUI network. Nothing is simulated or proxied through a centralised server.
+
+### 1. Object model — everything is an on-chain object
+
+SUI's object-centric model is used throughout:
+
+- **`Market`** is a *shared object* created by `MarketFactory`. Anyone with a SUI wallet can call its entry functions directly — no relayer needed.
+- **`AdminCap` / `OracleCap`** are *owned objects* (capabilities). Holding one in your wallet is the only way to resolve markets or push price feeds, enforcing access control at the VM level rather than with an off-chain allowlist.
+- **`Position`** receipts and **`OutcomeCapabilities`** are stored on-chain and transferred to users or locked inside the `Market` object.
+
+### 2. Move smart contracts
+
+All business logic is written in **Move**, SUI's native smart contract language:
+
+| What | Where | Why Move |
+|------|-------|----------|
+| Mint YES/NO fungible coins | `outcome_token.move` | `TreasuryCap` pattern ensures only the market factory can inflate supply |
+| Lock collateral, settle bets | `market_factory.move` | `Balance<SUI>` held inside the object — no token approval dance |
+| Oracle resolution + TWAP | `resolution.move` | Pure on-chain computation; no off-chain middleware |
+| DeepBook order book | `deepbook_pool.move` | Calls DeepBook's `clob_v2` package via Move-to-Move cross-package calls |
+
+### 3. SUI coin as collateral
+
+Users deposit **SUI (the native gas token)** as collateral rather than a wrapped stablecoin. This means:
+
+- No bridge risk or ERC-20 approval transactions
+- Gas and collateral come from the same coin object, enabling single-PTB position opens
+- `Balance<SUI>` is locked inside the `Market` shared object and can only leave via `redeem_yes`, `redeem_no`, or `close_position`
+
+### 4. Programmable Transaction Blocks (PTBs)
+
+The frontend constructs **PTBs** via `@mysten/sui` to batch multiple Move calls in one transaction:
+
+```
+splitCoins(gas, [fee])          // carve out collateral from gas coin
+→ market_factory::buy_position  // mint YES + NO tokens
+→ transferObjects([yes, no, position], sender)  // deliver to wallet
+```
+
+All three steps execute atomically — if any fails the whole PTB reverts.
+
+### 5. DeepBook — on-chain order book
+
+Rather than an AMM, each market gets two **DeepBook CLOB pools** (`Pool<YES, SUI>` and `Pool<NO, SUI>`). This means:
+
+- Limit orders and market orders are matched entirely on-chain
+- Price discovery happens in SUI consensus, not off-chain
+- Makers earn trading fees from the protocol; no liquidity provider token needed
+- The mid-price from each pool feeds the on-chain **TWAP price feed** (`resolution.move::PriceFeed`), which derives the implied probability displayed in the UI
+
+### 6. Wallet integration
+
+The frontend uses **`@mysten/dapp-kit`** to connect to any SUI-compatible wallet (Sui Wallet, Suiet, Martian, etc.). All transactions are signed in the user's wallet and submitted to the SUI testnet RPC — the app never holds private keys.
+
+### 7. Trustless resolution
+
+Market outcomes are set by calling `market_factory::resolve` from an oracle address registered in `OracleRegistry`. Once set, the outcome is immutable on-chain. The `AdminCap` holder can override before expiry for emergencies, but every resolution event is emitted as a **Move event** and permanently visible on the SUI explorer.
+
+---
+
 ## Bounty Alignment
 
 <!--
