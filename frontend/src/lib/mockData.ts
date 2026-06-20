@@ -4,7 +4,7 @@ import type { Market, Position, OrderBook, PriceFeedEntry } from "@/types";
 export const MOCK_MARKETS: Market[] = [
   {
     id: "0xabc123",
-    question: "Will SUI price exceed $5.00 by end of Q3 2025?",
+    question: "Will Bitcoin exceed $150,000 by end of Q3 2025?",
     yesLabel: "YES",
     noLabel: "NO",
     resolutionTime: Date.now() + 30 * 24 * 3600 * 1000,
@@ -21,7 +21,7 @@ export const MOCK_MARKETS: Market[] = [
   },
   {
     id: "0xdef456",
-    question: "Will the next SUI mainnet upgrade ship before August 2025?",
+    question: "Will the US Federal Reserve cut rates before September 2025?",
     yesLabel: "YES",
     noLabel: "NO",
     resolutionTime: Date.now() + 14 * 24 * 3600 * 1000,
@@ -38,7 +38,7 @@ export const MOCK_MARKETS: Market[] = [
   },
   {
     id: "0x789abc",
-    question: "Will DeepBook TVL surpass $100M in 2025?",
+    question: "Will Ethereum ETF net inflows exceed $10B in 2025?",
     yesLabel: "YES",
     noLabel: "NO",
     resolutionTime: Date.now() + 60 * 24 * 3600 * 1000,
@@ -55,7 +55,7 @@ export const MOCK_MARKETS: Market[] = [
   },
   {
     id: "0xresolved1",
-    question: "Will SUI be listed on Coinbase by June 2025?",
+    question: "Will the US Dollar index (DXY) close below 100 in June 2025?",
     yesLabel: "YES",
     noLabel: "NO",
     resolutionTime: Date.now() - 5 * 24 * 3600 * 1000,
@@ -76,7 +76,7 @@ export const MOCK_POSITIONS: Position[] = [
   {
     id: "0xpos1",
     marketId: "0xabc123",
-    question: "Will SUI price exceed $5.00 by end of Q3 2025?",
+    question: "Will Bitcoin exceed $150,000 by end of Q3 2025?",
     yesBalance: "5000000",
     noBalance: "0",
     marketStatus: "OPEN",
@@ -86,7 +86,7 @@ export const MOCK_POSITIONS: Position[] = [
   {
     id: "0xpos2",
     marketId: "0xresolved1",
-    question: "Will SUI be listed on Coinbase by June 2025?",
+    question: "Will the US Dollar index (DXY) close below 100 in June 2025?",
     yesBalance: "3000000",
     noBalance: "0",
     marketStatus: "RESOLVED_YES",
