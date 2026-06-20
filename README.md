@@ -62,63 +62,29 @@
 
 ## How SUI Blockchain Is Used
 
-Every core action in this protocol happens on-chain on the SUI network. Nothing is simulated or proxied through a centralised server.
+SUI is the blockchain this app runs on. Think of it like a public database that nobody owns — every bet, every trade, and every payout happens there automatically, with no company in the middle.
 
-### 1. Object model — everything is an on-chain object
+Here is what SUI actually does in this app, in plain terms:
 
-SUI's object-centric model is used throughout:
+### Holding your money safely
 
-- **`Market`** is a *shared object* created by `MarketFactory`. Anyone with a SUI wallet can call its entry functions directly — no relayer needed.
-- **`AdminCap` / `OracleCap`** are *owned objects* (capabilities). Holding one in your wallet is the only way to resolve markets or push price feeds, enforcing access control at the VM level rather than with an off-chain allowlist.
-- **`Position`** receipts and **`OutcomeCapabilities`** are stored on-chain and transferred to users or locked inside the `Market` object.
+When you place a bet, your SUI tokens are sent directly to a smart contract — a piece of code that lives on the blockchain. The contract holds the funds and nobody, not even us, can touch them. The money only moves when the market resolves and a winner is declared.
 
-### 2. Move smart contracts
+### Minting your bet tokens
 
-All business logic is written in **Move**, SUI's native smart contract language:
+When you deposit SUI, the contract automatically creates two tokens for you — a YES token and a NO token. These represent your stake in the outcome. You keep the side you believe in and can sell the other side to other traders.
 
-| What | Where | Why Move |
-|------|-------|----------|
-| Mint YES/NO fungible coins | `outcome_token.move` | `TreasuryCap` pattern ensures only the market factory can inflate supply |
-| Lock collateral, settle bets | `market_factory.move` | `Balance<SUI>` held inside the object — no token approval dance |
-| Oracle resolution + TWAP | `resolution.move` | Pure on-chain computation; no off-chain middleware |
-| DeepBook order book | `deepbook_pool.move` | Calls DeepBook's `clob_v2` package via Move-to-Move cross-package calls |
+### Running a live trading market
 
-### 3. SUI coin as collateral
+Every prediction market has its own order book powered by DeepBook (SUI's built-in trading exchange). This means you can buy and sell your YES/NO tokens at any time before the market closes, just like trading on a stock exchange — except everything happens on-chain with no middleman.
 
-Users deposit **SUI (the native gas token)** as collateral rather than a wrapped stablecoin. This means:
+### Paying out winners automatically
 
-- No bridge risk or ERC-20 approval transactions
-- Gas and collateral come from the same coin object, enabling single-PTB position opens
-- `Balance<SUI>` is locked inside the `Market` shared object and can only leave via `redeem_yes`, `redeem_no`, or `close_position`
+Once a market resolves, winners can send their tokens back to the contract and instantly receive SUI in return. There is no withdrawal request, no waiting period, and no approval from anyone. The contract pays out automatically.
 
-### 4. Programmable Transaction Blocks (PTBs)
+### Keeping everything transparent
 
-The frontend constructs **PTBs** via `@mysten/sui` to batch multiple Move calls in one transaction:
-
-```
-splitCoins(gas, [fee])          // carve out collateral from gas coin
-→ market_factory::buy_position  // mint YES + NO tokens
-→ transferObjects([yes, no, position], sender)  // deliver to wallet
-```
-
-All three steps execute atomically — if any fails the whole PTB reverts.
-
-### 5. DeepBook — on-chain order book
-
-Rather than an AMM, each market gets two **DeepBook CLOB pools** (`Pool<YES, SUI>` and `Pool<NO, SUI>`). This means:
-
-- Limit orders and market orders are matched entirely on-chain
-- Price discovery happens in SUI consensus, not off-chain
-- Makers earn trading fees from the protocol; no liquidity provider token needed
-- The mid-price from each pool feeds the on-chain **TWAP price feed** (`resolution.move::PriceFeed`), which derives the implied probability displayed in the UI
-
-### 6. Wallet integration
-
-The frontend uses **`@mysten/dapp-kit`** to connect to any SUI-compatible wallet (Sui Wallet, Suiet, Martian, etc.). All transactions are signed in the user's wallet and submitted to the SUI testnet RPC — the app never holds private keys.
-
-### 7. Trustless resolution
-
-Market outcomes are set by calling `market_factory::resolve` from an oracle address registered in `OracleRegistry`. Once set, the outcome is immutable on-chain. The `AdminCap` holder can override before expiry for emergencies, but every resolution event is emitted as a **Move event** and permanently visible on the SUI explorer.
+Every action — creating a market, placing a bet, a trade, a payout — is permanently recorded on the SUI blockchain. Anyone can look it up. Nothing can be hidden or changed after the fact.
 
 ---
 
