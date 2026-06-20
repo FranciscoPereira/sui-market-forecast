@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ConnectButton } from "@mysten/dapp-kit";
 import { TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LivePriceTicker } from "./LivePriceTicker";
 
 const NAV_LINKS = [
   { href: "/",          label: "Markets"   },
@@ -41,6 +42,11 @@ export function Navbar() {
               {label}
             </Link>
           ))}
+        </div>
+
+        {/* Live ticker */}
+        <div className="hidden md:flex">
+          <LivePriceTicker />
         </div>
 
         {/* Wallet */}

@@ -18,6 +18,8 @@ export const MOCK_MARKETS: Market[] = [
     yesPrice: 0.72,
     noPrice: 0.28,
     impliedProbBps: 7200,
+    coinId: "bitcoin",
+    targetPrice: 150_000,
   },
   {
     id: "0xdef456",
@@ -35,10 +37,12 @@ export const MOCK_MARKETS: Market[] = [
     yesPrice: 0.65,
     noPrice: 0.35,
     impliedProbBps: 6500,
+    coinId: null,
+    targetPrice: null,
   },
   {
     id: "0x789abc",
-    question: "Will Ethereum ETF net inflows exceed $10B in 2025?",
+    question: "Will Ethereum exceed $5,000 before end of 2025?",
     yesLabel: "YES",
     noLabel: "NO",
     resolutionTime: Date.now() + 60 * 24 * 3600 * 1000,
@@ -52,6 +56,8 @@ export const MOCK_MARKETS: Market[] = [
     yesPrice: 0.40,
     noPrice: 0.60,
     impliedProbBps: 4000,
+    coinId: "ethereum",
+    targetPrice: 5_000,
   },
   {
     id: "0xresolved1",
@@ -69,6 +75,8 @@ export const MOCK_MARKETS: Market[] = [
     yesPrice: 1.0,
     noPrice: 0.0,
     impliedProbBps: 10000,
+    coinId: null,
+    targetPrice: null,
   },
 ];
 

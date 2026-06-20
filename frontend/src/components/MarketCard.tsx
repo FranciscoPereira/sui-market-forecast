@@ -4,14 +4,35 @@ import { Card } from "./ui/Card";
 import { StatusBadge } from "./ui/Badge";
 import type { Market } from "@/types";
 import { formatSui, formatTimeLeft, formatProbability } from "@/lib/utils";
+import { impliedProbabilityBps } from "@/lib/probability";
+import { useLivePrices } from "@/hooks/useLivePrices";
 
 interface Props {
   market: Market;
 }
 
 export function MarketCard({ market }: Props) {
-  const yesPct = market.yesPrice * 100;
-  const noPct  = market.noPrice  * 100;
+  const { data: prices } = useLivePrices();
+
+  // Compute live implied probability if we have a coin price and target
+  let liveProbBps = market.impliedProbBps;
+  let currentPrice: number | null = null;
+
+  if (prices && market.coinId && market.targetPrice) {
+    const feed = prices[market.coinId as keyof typeof prices];
+    if (feed) {
+      currentPrice = feed.usd;
+      liveProbBps = impliedProbabilityBps(
+        market.coinId,
+        feed.usd,
+        market.targetPrice,
+        market.resolutionTime - Date.now(),
+      );
+    }
+  }
+
+  const yesPct = liveProbBps / 100;
+  const noPct  = 100 - yesPct;
 
   return (
     <Link to={`/market/${market.id}`}>
@@ -24,6 +45,21 @@ export function MarketCard({ market }: Props) {
           <StatusBadge status={market.status} className="shrink-0" />
         </div>
 
+        {/* Live underlying price badge */}
+        {currentPrice && (
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-xs text-gray-500">
+              {market.coinId === "bitcoin" ? "BTC" : "ETH"} now:
+            </span>
+            <span className="text-xs font-semibold text-white">
+              ${currentPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            </span>
+            <span className="text-xs text-gray-500">
+              / target ${market.targetPrice!.toLocaleString()}
+            </span>
+          </div>
+        )}
+
         {/* Probability bar */}
         <div className="mb-4">
           <div className="flex justify-between text-xs text-gray-400 mb-1.5">
@@ -31,13 +67,8 @@ export function MarketCard({ market }: Props) {
             <span className="text-no-500 font-medium">NO {noPct.toFixed(1)}%</span>
           </div>
           <div className="h-2 rounded-full bg-border overflow-hidden flex">
-            <div
-              className="h-full bg-yes-500 transition-all"
-              style={{ width: `${yesPct}%` }}
-            />
-            <div
-              className="h-full bg-no-500 transition-all flex-1"
-            />
+            <div className="h-full bg-yes-500 transition-all duration-700" style={{ width: `${yesPct}%` }} />
+            <div className="h-full bg-no-500 flex-1" />
           </div>
         </div>
 
@@ -53,18 +84,18 @@ export function MarketCard({ market }: Props) {
           </div>
         </div>
 
-        {/* Implied probability pill */}
+        {/* AI signal */}
         <div className="mt-3 pt-3 border-t border-border flex items-center gap-2">
           <span className="text-xs text-gray-500">AI Signal:</span>
           <span className="text-xs font-medium text-brand-500">
-            {formatProbability(market.impliedProbBps)} YES
+            {formatProbability(liveProbBps)} YES
           </span>
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-gray-600">
-            {market.yesSupply !== "0"
-              ? `${(Number(market.yesSupply) / 1e6).toFixed(0)} YES tokens`
-              : "No positions yet"}
-          </span>
+          {prices && market.coinId && (
+            <span className="ml-auto text-xs text-gray-600 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-yes-500 animate-pulse inline-block" />
+              Live
+            </span>
+          )}
         </div>
       </Card>
     </Link>

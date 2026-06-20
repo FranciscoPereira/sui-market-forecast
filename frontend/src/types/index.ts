@@ -14,6 +14,9 @@ export interface Market {
   outcome: number;           // 0=unresolved 1=yes 2=no 3=invalid
   creator: string;
   oracle: string;
+  // Live data linkage
+  coinId: string | null;       // CoinGecko ID, e.g. "bitcoin"
+  targetPrice: number | null;  // numeric threshold for probability model
   // Derived
   status: MarketStatus;
   yesPrice: number;  // 0–1 probability
