@@ -4,7 +4,7 @@ import type { Market, Position, OrderBook, PriceFeedEntry } from "@/types";
 export const MOCK_MARKETS: Market[] = [
   {
     id: "0xabc123",
-    question: "Will Bitcoin exceed $200,000 by end of Q3 2026?",
+    question: "Will Bitcoin exceed $100,000 by end of Q3 2026?",
     yesLabel: "YES",
     noLabel: "NO",
     resolutionTime: new Date("2026-09-30T23:59:59Z").getTime(),
@@ -19,7 +19,7 @@ export const MOCK_MARKETS: Market[] = [
     noPrice: 0.28,
     impliedProbBps: 7200,
     coinId: "bitcoin",
-    targetPrice: 200_000,
+    targetPrice: 100_000,
   },
   {
     id: "0xdef456",
@@ -42,7 +42,7 @@ export const MOCK_MARKETS: Market[] = [
   },
   {
     id: "0x789abc",
-    question: "Will Ethereum exceed $5,000 before end of 2026?",
+    question: "Will Ethereum exceed $3,000 before end of 2026?",
     yesLabel: "YES",
     noLabel: "NO",
     resolutionTime: new Date("2026-12-31T23:59:59Z").getTime(),
@@ -57,7 +57,7 @@ export const MOCK_MARKETS: Market[] = [
     noPrice: 0.60,
     impliedProbBps: 4000,
     coinId: "ethereum",
-    targetPrice: 5_000,
+    targetPrice: 3_000,
   },
   {
     id: "0xresolved1",
