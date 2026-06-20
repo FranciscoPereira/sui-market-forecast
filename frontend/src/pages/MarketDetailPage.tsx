@@ -10,6 +10,7 @@ import { formatSui, formatTimeLeft, formatProbability, shortenAddress } from "@/
 import { impliedProbabilityBps } from "@/lib/probability";
 import { useLivePrices } from "@/hooks/useLivePrices";
 import { usePriceHistory } from "@/hooks/usePriceHistory";
+import { ForecastAdvisor } from "@/components/ForecastAdvisor";
 
 export default function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -168,8 +169,9 @@ export default function MarketDetailPage() {
             </div>
           </Card>
         </div>
-        <div>
+        <div className="space-y-6">
           <TradePanel market={{ ...market, yesPrice: yesPct / 100, noPrice: noPct / 100 }} />
+          {market.coinId === "bitcoin" && <ForecastAdvisor />}
         </div>
       </div>
     </div>

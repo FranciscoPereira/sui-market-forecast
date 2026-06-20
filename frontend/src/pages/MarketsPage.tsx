@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Search, SlidersHorizontal } from "lucide-react";
 import { MarketCard } from "@/components/MarketCard";
 import { CreateMarketModal } from "@/components/CreateMarketModal";
+import { ForecastAdvisor } from "@/components/ForecastAdvisor";
 import { Button } from "@/components/ui/Button";
 import { MOCK_MARKETS } from "@/lib/mockData";
 import type { Market, MarketStatus } from "@/types";
@@ -88,6 +89,18 @@ export default function MarketsPage() {
         </Button>
       </div>
 
+      {/* BTC Forecast Advisor */}
+      <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <ForecastAdvisor />
+        </div>
+        <div className="lg:col-span-2 flex flex-col gap-4">
+          {filtered.slice(0, 2).map((m) => (
+            <MarketCard key={m.id} market={m} />
+          ))}
+        </div>
+      </div>
+
       {/* Market grid */}
       {filtered.length === 0 ? (
         <div className="text-center py-20 text-gray-500">
@@ -96,7 +109,7 @@ export default function MarketsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((m) => (
+          {filtered.slice(2).map((m) => (
             <MarketCard key={m.id} market={m} />
           ))}
         </div>
